@@ -1,11 +1,10 @@
-module uart_writter(
-	input wire tbre,
-	input wire tsre,
+module uart_reader(
+	input wire data_ready,
+	inout wire[7:0] data_in,
 	input wire clk11,
-	input wire we,
-	input wire[7:0] data_in,
+	input wire re,
 	
-	output reg wrn,
+	output reg rdn,
 	output reg[7:0] data_out,
 	output reg done
 );
@@ -25,26 +24,23 @@ always @ (posedge clk11) begin
 end
 
 always @ (posedge clk) begin
-	if (we=='0') begin
+	if (re=='0') begin
 		state<=state0;
-		wrn<='1';
-		done<='0';
+		rdn<='1';
+		data_out<={8{z}};
 	end else begin
 		case(state)
 			state0:begin
-				data_out<=data_in;
-				wrn<='0';
 				state<=state1;
 			end
 			state1:begin
-				wrn<='1';
 				state<=state2;
 			end
 			state2:begin
-				if (tbre=='1') state<=state3;
+				state<=state3;
 			end
 			state3:;
-				if (tsre=='1') state<=state4;
+				state<=state4;
 			state4:;
 				state<=state0;
 			default:;
