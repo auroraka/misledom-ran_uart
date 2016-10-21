@@ -57,6 +57,7 @@
 **/*.vho
 *impact.xml
 **/webtalk.log
+**/*.xmsgs
 
 **/work/**
 *.cr.mti
