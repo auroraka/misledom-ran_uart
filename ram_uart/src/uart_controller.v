@@ -14,8 +14,9 @@ module uart_writter(
 	output reg done
 );
 
-enum {rstate0,rstate1,rstate2,rstate3,rstate4} rstate;
-enum {wstate0,wstate1,wstate2,wstate3} wstate; 
+//typedef enum {WAIT, GO} state_type;
+//typedef enum {rstate0,rstate1,rstate2,rstate3,rstate4} rstate;
+//typedef enum {wstate0,wstate1,wstate2,wstate3} wstate; 
 wire clk;
 integer cnt=0;
 
@@ -24,7 +25,7 @@ always @ (posedge clk11) begin
 		cnt=cnt+1;
 	end else begin
 		cnt=0;
-		clk=~clk;	
+		clk=~clk;
 	end
 end
 
