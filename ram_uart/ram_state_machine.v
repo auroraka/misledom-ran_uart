@@ -225,7 +225,7 @@ begin
 	endcase	
 end
 
-ramcontroller ramcontroller(
+ram_full ram_full(
 	.en(en_ram),
 	.re(re),
 	.we(we),
