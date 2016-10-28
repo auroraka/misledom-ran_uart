@@ -19,46 +19,51 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module ram_state_machine(
-    input wire rst,
-    input wire clk,
-    input wire en,
-    input wire [15:0] sw,
-	input wire [15:0] ram_addr1,
+   input wire rst,
+   input wire clk,
+   input wire en,
+   input wire [15:0] sw,
+	output wire [17:0] ram_addr1,
 	inout wire [15:0] ram_data1,
-	input wire [15:0] ram_addr2,
+	output wire [17:0] ram_addr2,
 	inout wire [15:0] ram_data2,
-	input wire ram1OE,
-	input wire ram2OE,
-	input wire ram1WE,
-	input wire ram2WE,
-	input wire ram1EN,
-	input wire ram2EN,
-    output reg [15:0] ledout,
-    output reg [6:0] dyp0,
-    output reg [6:0] dyp1
+	output wire ram1OE,
+	output wire ram2OE,
+	output wire ram1WE,
+	output wire ram2WE,
+	output wire ram1EN,
+	output wire ram2EN,
+   output reg [15:0] ledout,
+   output wire [6:0] dyp0,
+   output wire [6:0] dyp1
     );
 
 reg re, we, en_ram, count ;
 reg ram_choose ; 
-reg [15:0] data_in, data_out ;
+reg [15:0] data_in ;
 reg [16:0] data_address ;
 reg [3:0] CS, NS ;
 wire done ;
-wire data_out ;
+wire [15:0] data_out ;
 
 parameter [3:0] start = 4'd0,
 load_data1 = 1,
 write_data1 = 2,
-read_out1 = 3,
-write_data2 = 4,
-read_out2 = 5 ;
+incre1 = 3, 
+read_out1 = 4,
+incre2 = 5,
+read_before_write = 6,
+decr = 7,
+write_data2 = 8,
+incre3 = 9,
+read_out2 = 10,
+incre4 = 11 ;
 
-
-always @ (posedge clk or negedge rst)
+always @ (posedge clk or negedge rst or posedge done)
 begin
-	if(en == 0) CS <= start ;
-	if(!rst) CS <= start ;
-	else CS <= NS ;
+	if(!rst || !en) CS <= start ;
+	else
+		CS <= start ;
 end 
 
 always @ (CS)
@@ -67,11 +72,11 @@ begin
 	case(CS)
 		start:
 		begin
-		   data_address = {0, sw} ;
 		   en_ram = 0 ;
 		   re = 0 ;
 		   we = 0 ;
 		   count = 0 ;
+		   data_address = {0, sw} ;
 		   NS = load_data1 ;
 		end
 		load_data1:
@@ -81,82 +86,104 @@ begin
 		end
 		write_data1:
 		begin
-			re = 0 ;
 			we = 1 ;
 			en_ram = 1 ;
-			wait(done == 1) ;
+			NS = incre1 ;
+		end
+		incre1:
+		begin
+			we = 0 ;
 			count = count + 1 ;
-			if(count >= 10) NS = read_out1 ;
-			else
+			if(count <= 9)
 			begin
 				data_in = data_in + 1 ;
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ; // increase data and address
 				NS = write_data1 ;
 			end
-		end		
-		read_out1:
-		begin
-			we = 0 ;
-			re = 1 ;
-			//en_ram = 1 ;
-			if(count == 10)
+			else
 			begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 0 ; // the initial address
+				NS = read_out1 ;
+			end
+		end
+		read_out1:
+		begin
+			re = 1 ;
+			NS = incre2 ;
+		end
+		incre2:
+		begin
+			re = 0 ;
+			count = count + 1 ;
+			if(count <= 19)
+			begin
+				data_address = data_address + 1 ;
+				data_address[16] = data_address[16] & 0 ; // increase address1
+				NS = read_out1 ;
 			end
 			else
+			begin
+				data_address = data_address - 9 ;
+				data_address[16] = data_address[16] & 0 ;
+				NS = read_before_write ;
+			end
+		end
+		read_before_write:
+		begin
+			re = 1 ;
+			NS = decr ;
+		end
+		decr:
+		begin
+			re = 0 ;
+			data_in = data_out - 1; 
+			data_address[16] = data_address[16] & 1 ;
+			NS = write_data2 ;
+		end
+		write_data2:
+		begin
+			we = 1 ;
+			NS = incre3 ;
+		end
+		incre3:
+		begin
+			we = 0 ;
+			count = count + 1 ;
+			if(count <= 29)
 			begin
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ;
+				NS = read_before_write ;
 			end
-			wait(done == 1) ; // wait for read data to dataout finish
-			count = count + 1 ;
-			if(count >= 20) NS = write_data2 ;
-			else NS = read_out1 ;
-		end
-		write_data2 :
-		begin 
-			we = 0 ;
-			re = 1 ;
-			//en_ram = 1 ;
-			wait(done) ; // read from ram1
-			re = 0 ;
-			we = 1 ;
-			//en_ram = 1 ;
-			data_address[16] = data_address[16] & 1 ;
-			data_in = data_out - 1 ;
-			wait(done) ;
-			count = count + 1 ;
-			if(count >= 30) NS = read_out2 ;
 			else
 			begin
-				data_address = data_address - 1 ;
-				data_address[16] = data_address[16] & 0 ; // decrease the address
-				NS = write_data2 ;
-			end 
-		end
-		read_out2:
-		begin
-			we = 0 ;
-			re = 1 ;
-			if(count > 30)
-			begin
-				data_address = data_address + 1 ;
-				data_address[16] = data_address[16] & 1 ; // increase the address
-			end
-			else data_address[16] = data_address[16] & 1 ; // remain at first
-			wait(done) ;// wait for read data to data_out ;
-			count = count + 1 ;
-			if(count >= 40) NS = start ;
-			else
-			begin
-				//data_address = data_address + 1 ;
-				//data_address[16] = data_address[16] & 1 ; // increase the address
+				data_address = data_address - 9 ;
+				data_address[16] = data_address[16] & 1 ;
 				NS = read_out2 ;
 			end
 		end
-		default: NS = start ;
+		read_out2:
+		begin
+			re = 1 ;
+			NS = incre4 ;
+		end
+		incre4:
+		begin
+			re = 0 ;
+			count = count + 1 ;
+			if(count <= 30)
+			begin
+				data_address = data_address + 1 ;
+				data_address[16] = data_address[16] & 1 ;
+				NS = read_out2 ;
+			end
+			else
+			begin
+				NS = start ;
+			end
+		end
 	endcase
 end
 
@@ -189,41 +216,11 @@ begin
 	endcase
 end
 
-always @ (CS)
-begin
-	case(CS)
-		start: 
-		begin
-			dyp0 <= 7'b0000001 ;
-			dyp1 <= {4'b0000, en_ram, re, we} ;
-		end
-		write_data1: 
-		begin
-			dyp0 <= 7'b0000010 ;
-			dyp1 <= {4'b0000, en_ram, re, we} ;
-		end
-		read_out1:
-		begin
-			dyp0 <= 7'b0000100 ;
-			dyp1 <= {4'b0000, en_ram, re, we} ;
-		end
-		write_data2:
-		begin
-			dyp0 <= 7'b0001000 ;
-			dyp1 <= {4'b0000, en_ram, re, we} ;
-		end
-		read_out2:
-		begin
-			dyp0 <= 7'b0010000 ;
-			dyp1 <= {4'b0000, en_ram, re, we} ;
-		end
-		default:
-		begin
-			dyp0 <= 7'b0000000 ;
-			dyp1 <= 7'b0000000 ;
-		end
-	endcase	
-end
+seg_displayer seg_displayer(
+	.isHex(1),
+	.num(CS),
+	.seg(dyp0)
+) ;
 
 ram_full ram_full(
 	.en(en_ram),
@@ -242,6 +239,6 @@ ram_full ram_full(
 	.ram_addr1(ram_addr1),
 	.ram_data1(ram_data1),
 	.ram_addr2(ram_addr2),
-	.ram_data2(ram_data2),
+	.ram_data2(ram_data2)
 ) ; // need to confirm the ram_controller module
 endmodule
