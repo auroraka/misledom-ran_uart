@@ -18,7 +18,7 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module ram_state_machine(
+ module ram_state_machine(
    input wire rst,
    input wire clk,
    input wire en,
@@ -38,7 +38,7 @@ module ram_state_machine(
    output wire [6:0] dyp1
     );
 
-reg re, we, en_ram, count ;
+reg re, we, count ;
 reg ram_choose ; 
 reg [15:0] data_in ;
 reg [16:0] data_address ;
@@ -61,7 +61,8 @@ incre4 = 11 ;
 
 always @ (posedge clk or negedge rst or posedge done)
 begin
-	if(!rst || !en) CS <= start ;
+	//if(!rst || !en) CS <= start ;
+	if(!rst) CS <= start ;
 	else
 		CS <= start ;
 end 
@@ -72,7 +73,7 @@ begin
 	case(CS)
 		start:
 		begin
-		   en_ram = 0 ;
+		   //en_ram = 0 ;
 		   re = 0 ;
 		   we = 0 ;
 		   count = 0 ;
@@ -87,7 +88,7 @@ begin
 		write_data1:
 		begin
 			we = 1 ;
-			en_ram = 1 ;
+			//en_ram = 1 ;
 			NS = incre1 ;
 		end
 		incre1:
@@ -216,14 +217,20 @@ begin
 	endcase
 end
 
-seg_displayer seg_displayer(
+seg_displayer seg_displayer0(
 	.isHex(1),
 	.num(CS),
 	.seg(dyp0)
 ) ;
 
+seg_displayer seg_displayer1(
+	.isHex(1),
+	.num(CS),
+	.seg(dyp1)
+) ;
+
 ram_full ram_full(
-	.en(en_ram),
+	.en(en),
 	.re(re),
 	.we(we),
 	.data_in(data_in),
