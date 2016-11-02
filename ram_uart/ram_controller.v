@@ -29,8 +29,8 @@ module ram_controller(
     );
 	
 parameter write_establish=3, write_hold=3, write_time=3;
-parameter read_reference=5;
-parameter done_hold=10;
+parameter read_reference=3;
+parameter done_hold=50;
 
 initial
 begin

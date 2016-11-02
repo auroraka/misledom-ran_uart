@@ -59,37 +59,29 @@ incre3 = 9,
 read_out2 = 10,
 incre4 = 11 ;
 
-always @ (posedge clk or negedge rst or posedge done)
+always @ (posedge clk or negedge rst)
 begin
-	//if(!rst || !en) CS <= start ;
 	if(!rst) CS <= start ;
 	else
-		CS <= start ;
-end 
-
-always @ (CS)
-begin 
-	NS = start ;
 	case(CS)
 		start:
 		begin
-		   //en_ram = 0 ;
 		   re = 0 ;
 		   we = 0 ;
 		   count = 0 ;
 		   data_address = {0, sw} ;
-		   NS = load_data1 ;
+		   CS = load_data1 ;
 		end
 		load_data1:
 		begin
 			data_in = sw ;
-			NS = write_data1 ; 
+			CS = write_data1 ; 
 		end
 		write_data1:
 		begin
 			we = 1 ;
 			//en_ram = 1 ;
-			NS = incre1 ;
+			CS = incre1 ;
 		end
 		incre1:
 		begin
@@ -106,13 +98,13 @@ begin
 			begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 0 ; // the initial address
-				NS = read_out1 ;
+				CS = read_out1 ;
 			end
 		end
 		read_out1:
 		begin
 			re = 1 ;
-			NS = incre2 ;
+			CS = incre2 ;
 		end
 		incre2:
 		begin
@@ -122,31 +114,31 @@ begin
 			begin
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ; // increase address1
-				NS = read_out1 ;
+				CS = read_out1 ;
 			end
 			else
 			begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 0 ;
-				NS = read_before_write ;
+				CS = read_before_write ;
 			end
 		end
 		read_before_write:
 		begin
 			re = 1 ;
-			NS = decr ;
+			CS = decr ;
 		end
 		decr:
 		begin
 			re = 0 ;
 			data_in = data_out - 1; 
 			data_address[16] = data_address[16] & 1 ;
-			NS = write_data2 ;
+			CS = write_data2 ;
 		end
 		write_data2:
 		begin
 			we = 1 ;
-			NS = incre3 ;
+			CS = incre3 ;
 		end
 		incre3:
 		begin
@@ -156,19 +148,19 @@ begin
 			begin
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ;
-				NS = read_before_write ;
+				CS = read_before_write ;
 			end
 			else
 			begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 1 ;
-				NS = read_out2 ;
+				CS = read_out2 ;
 			end
 		end
 		read_out2:
 		begin
 			re = 1 ;
-			NS = incre4 ;
+			CS = incre4 ;
 		end
 		incre4:
 		begin
@@ -178,15 +170,16 @@ begin
 			begin
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 1 ;
-				NS = read_out2 ;
+				CS = read_out2 ;
 			end
 			else
 			begin
-				NS = start ;
+				CS = start ;
 			end
 		end
 	endcase
-end
+end 
+
 
 always @ (CS)
 begin
