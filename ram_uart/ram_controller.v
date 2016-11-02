@@ -28,9 +28,9 @@ module ram_controller(
 	inout wire [15:0] data
     );
 	
-parameter write_establish=3, write_hold=3, write_time=3;
-parameter read_reference=3;
-parameter done_hold=50;
+parameter write_establish=300, write_hold=300, write_time=300;
+parameter read_reference=300;
+parameter done_hold=500000;
 
 initial
 begin

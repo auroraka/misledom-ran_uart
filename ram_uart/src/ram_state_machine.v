@@ -38,11 +38,11 @@
    output wire [6:0] dyp1
     );
 
-reg re, we, count ;
+reg re, we ;
 reg ram_choose ; 
 reg [15:0] data_in ;
 reg [16:0] data_address ;
-reg [3:0] CS, NS ;
+reg [3:0] CS, count ;
 wire done ;
 wire [15:0] data_out ;
 
@@ -61,19 +61,23 @@ incre4 = 11 ;
 
 always @ (posedge clk or negedge rst)
 begin
-	if(!rst) CS <= start ;
+	if(!rst) 
+		begin
+			CS = start ;
+			count = 0;
+		end
 	else
 	case(CS)
 		start:
 		begin
 		   re = 0 ;
 		   we = 0 ;
-		   count = 0 ;
 		   data_address = {0, sw} ;
 		   CS = load_data1 ;
 		end
 		load_data1:
 		begin
+		    count = 0 ;
 			data_in = sw ;
 			CS = write_data1 ; 
 		end
@@ -92,13 +96,14 @@ begin
 				data_in = data_in + 1 ;
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ; // increase data and address
-				NS = write_data1 ;
+				CS = write_data1 ;
 			end
 			else
 			begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 0 ; // the initial address
 				CS = read_out1 ;
+				count = 0;
 			end
 		end
 		read_out1:
@@ -110,7 +115,7 @@ begin
 		begin
 			re = 0 ;
 			count = count + 1 ;
-			if(count <= 19)
+			if(count <= 9)
 			begin
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ; // increase address1
@@ -121,6 +126,7 @@ begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 0 ;
 				CS = read_before_write ;
+				count=0;
 			end
 		end
 		read_before_write:
@@ -144,7 +150,7 @@ begin
 		begin
 			we = 0 ;
 			count = count + 1 ;
-			if(count <= 29)
+			if(count <= 9)
 			begin
 				data_address = data_address + 1 ;
 				data_address[16] = data_address[16] & 0 ;
@@ -155,6 +161,7 @@ begin
 				data_address = data_address - 9 ;
 				data_address[16] = data_address[16] & 1 ;
 				CS = read_out2 ;
+				count = 0;
 			end
 		end
 		read_out2:
@@ -166,10 +173,10 @@ begin
 		begin
 			re = 0 ;
 			count = count + 1 ;
-			if(count <= 30)
+			if(count <= 9)
 			begin
 				data_address = data_address + 1 ;
-				data_address[16] = data_address[16] & 1 ;
+				data_address[16] = data_address[16] | 1 ;
 				CS = read_out2 ;
 			end
 			else
@@ -180,33 +187,38 @@ begin
 	endcase
 end 
 
+always @ (*)
+begin
+	ledout[14] <= data_address[16];
+	ledout[15] <= done;
+end
 
 always @ (CS)
 begin
 	case(CS)
-		start: ledout <= data_address[15:0] ;
-		load_data1: ledout <= data_in ;
+		start: ledout[13:0] <= data_address[13:0] ;
+		load_data1: ledout[13:0] <= data_in[13:0] ;
 		write_data1: 
 		begin
-			ledout[15:8] <= data_address[7:0] ;
+			ledout[13:8] <= data_address[5:0] ;
 			ledout[7:0] <= data_in[7:0] ;
 		end
 		read_out1:
 		begin
-			ledout[15:8] <= data_address[7:0] ;
+			ledout[13:8] <= data_address[5:0] ;
 			ledout[7:0] <= data_out[7:0] ;
 		end
 		write_data2:
 		begin
-			ledout[15:8] <= data_address[7:0] ;
+			ledout[13:8] <= data_address[5:0] ;
 			ledout[7:0] <= data_in[7:0] ;
 		end
 		read_out2:
 		begin
-			ledout[15:8] <= data_address[7:0] ;
+			ledout[13:8] <= data_address[5:0] ;
 			ledout[7:0] <= data_out[7:0] ;
 		end
-		default: ledout <= 16'b0000000000000000 ;
+		default: ledout[13:0] <= 14'b00000000000000 ;
 	endcase
 end
 
@@ -218,7 +230,7 @@ seg_displayer seg_displayer0(
 
 seg_displayer seg_displayer1(
 	.isHex(1),
-	.num(CS),
+	.num(count),
 	.seg(dyp1)
 ) ;
 
