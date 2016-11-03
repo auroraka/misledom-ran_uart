@@ -27,7 +27,8 @@ module ram_controller(
 	output reg [15:0]data_out, 
 	inout wire [15:0] data
     );
-	
+
+reg [15:0] data_temp;
 parameter write_establish=300, write_hold=300, write_time=300;
 parameter read_reference=300;
 parameter done_hold=500_000_000_000;
@@ -46,7 +47,8 @@ begin
 	ram_en=en;
 end
 
-assign data=we?data_in:16'bz;
+//assign data=re?16'bz:data;
+assign data=data_temp;
 
 always @(re, we)
 begin
@@ -55,6 +57,7 @@ begin
 		if(we==1)//write
 			begin
 				data_out=data_in;
+				data_temp=data_in;
 				#write_establish ram_we=0;
 				// #write_time ram_we=1;
 				#write_hold done=1;
@@ -63,18 +66,17 @@ begin
 		else if(re==1)
 			begin
 				ram_oe=0;
+				data_temp=16'bz;
 				#read_reference data_out=data;
 				// ram_oe=1;
 				done=1;
 				// #done_hold done=0;
 			end
-		else if(we==0)
+		else
 			begin
+				data_temp=data_in;
+				data_out=data;
 				ram_we=1;
-				done = 0;
-			end
-		else if(re==0)
-			begin
 				ram_oe=1;
 				done = 0;
 			end

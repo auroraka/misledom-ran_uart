@@ -124,3 +124,8 @@ NET "ram2EN" LOC = N10;
 NET "ram2OE" LOC = R9;
 NET "ram2WE" LOC = M9;
 NET "en" LOC = U11;
+
+# PlanAhead Generated physical constraints 
+
+NET "rdn" LOC = C14;
+NET "wrn" LOC = U5;

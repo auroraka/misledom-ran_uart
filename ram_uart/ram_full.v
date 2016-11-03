@@ -31,7 +31,8 @@ module ram_full(
 	
 wire [17:0] addr_17;
 wire done1, done2;
-wire data_out1, data_out2;
+wire [15:0]data_out1;
+wire [15:0]data_out2;
 reg en1=0, en2=0;
 
 assign addr_17[15:0] = addr[15:0];

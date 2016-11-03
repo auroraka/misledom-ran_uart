@@ -35,7 +35,9 @@
 	output wire ram2EN,
    output reg [15:0] ledout,
    output wire [6:0] dyp0,
-   output wire [6:0] dyp1
+   output wire [6:0] dyp1,
+   output wire rdn,
+   output wire wrn
     );
 
 reg re, we ;
@@ -58,6 +60,9 @@ write_data2 = 8,
 incre3 = 9,
 read_out2 = 10,
 incre4 = 11 ;
+
+assign rdn=0;
+assign wrn=0;
 
 always @ (posedge clk or negedge rst)
 begin
@@ -201,27 +206,31 @@ begin
 	case(CS)
 		start: ledout[9:0] <= data_address[9:0] ;
 		load_data1: ledout[9:0] <= data_in[9:0] ;
-		incre1: 
-		begin
-			ledout[9:5] <= data_address[4:0] ;
-			ledout[4:0] <= data_out[4:0] ;
-		end
-		incre2:
-		begin
-			ledout[9:5] <= data_address[4:0] ;
-			ledout[4:0] <= data_out[4:0] ;
-		end
-		incre3:
-		begin
-			ledout[9:5] <= data_address[4:0] ;
-			ledout[4:0] <= data_in[4:0] ;
-		end
-		incre4:
-		begin
-			ledout[9:5] <= data_address[4:0] ;
-			ledout[4:0] <= data_out[4:0] ;
-		end
-		default: ledout[9:0] <= 10'b0000000000 ;
+		// incre1,write_data1: 
+		// begin
+			// ledout[9:5] <= data_address[4:0] ;
+			// ledout[4:0] <= data_out[4:0] ;
+		// end
+		// incre2:
+		// begin
+			// ledout[9:5] <= data_address[4:0] ;
+			// ledout[4:0] <= data_out[4:0] ;
+		// end
+		// incre3:
+		// begin
+			// ledout[9:5] <= data_address[4:0] ;
+			// ledout[4:0] <= data_in[4:0] ;
+		// end
+		// incre4:
+		// begin
+			// ledout[9:5] <= data_address[4:0] ;
+			// ledout[4:0] <= data_out[4:0] ;
+		// end
+		default:// ledout[9:0] <= 10'b0000000000 ;
+			begin
+				ledout[9:5] <= data_address[4:0] ;
+				ledout[4:0] <= data_out[4:0] ;			
+			end
 	endcase
 end
 
@@ -245,15 +254,15 @@ ram_full ram_full(
 	.addr(data_address),
 	.done(done),
 	.data_out(data_out),
-	.ram1EN(ram1EN),
-	.ram2EN(ram2EN),
-	.ram1OE(ram1OE),
-	.ram2OE(ram2OE),
-	.ram1WE(ram1WE),
-	.ram2WE(ram2WE),
-	.ram_addr1(ram_addr1),
-	.ram_data1(ram_data1),
-	.ram_addr2(ram_addr2),
-	.ram_data2(ram_data2)
+	.ram1EN(ram2EN),
+	.ram2EN(ram1EN),
+	.ram1OE(ram2OE),
+	.ram2OE(ram1OE),
+	.ram1WE(ram2WE),
+	.ram2WE(ram1WE),
+	.ram_addr1(ram_addr2),
+	.ram_data1(ram_data2),
+	.ram_addr2(ram_addr1),
+	.ram_data2(ram_data1)
 ) ; // need to confirm the ram_controller module
 endmodule
