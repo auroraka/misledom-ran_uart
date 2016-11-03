@@ -60,7 +60,9 @@ decr = 7,
 write_data2 = 8,
 incre3 = 9,
 read_out2 = 10,
-incre4 = 11 ;
+incre4 = 11 ,
+after_read=12,
+term=13;
 
 assign rdn=1;
 assign wrn=1;
@@ -105,7 +107,7 @@ begin
 			end
 			else
 			begin
-				data_address = data_address - 9 ;
+				data_address = data_address - 10 ;
 				data_address[16] = data_address[16] & 0 ; // the initial address
 				CS = read_out1 ;
 				count = 0;
@@ -113,6 +115,7 @@ begin
 		end
 		read_out1: //4
 		begin
+			data_address = data_address + 1 ;
 			re = 1 ;
 			CS = incre2 ;
 		end
@@ -122,17 +125,18 @@ begin
 			count = count + 1 ;
 			if(count <= 9)
 			begin
-				data_address = data_address + 1 ;
-				data_address[16] = data_address[16] & 0 ; // increase address1
 				CS = read_out1 ;
 			end
 			else
 			begin
-				data_address = data_address - 9 ;
-				data_address[16] = data_address[16] & 0 ;
-				CS = read_before_write ;
+				CS = after_read ;
 				count=0;
 			end
+		end
+		after_read: //12
+		begin
+			data_address = data_address - 9 ;
+			CS = read_before_write;
 		end
 		read_before_write: //6
 		begin
@@ -143,11 +147,11 @@ begin
 		begin
 			re = 0 ;
 			data_in = ram_data1 - 1; 
-			data_address[16] = data_address[16] | 1 ;
 			CS = write_data2 ;
 		end
 		write_data2: //8
 		begin
+			data_address[16] = data_address[16] | 1 ;
 			we = 1 ;
 			CS = incre3 ;
 		end
@@ -163,7 +167,7 @@ begin
 			end
 			else
 			begin
-				data_address = data_address - 9 ;
+				data_address = data_address - 10 ;
 				data_address[16] = data_address[16] | 1 ;
 				count = 0;
 				CS = read_out2 ;
@@ -172,6 +176,7 @@ begin
 		read_out2: //a
 		begin
 			re = 1 ;
+			data_address = data_address + 1 ;
 			CS = incre4 ;
 		end
 		incre4: //b
@@ -180,56 +185,29 @@ begin
 			count = count + 1 ;
 			if(count <= 9)
 			begin
-				data_address = data_address + 1 ;
 				CS = read_out2 ;
 			end
 			else
 			begin
-				CS = start ;
+				CS = term ;
 			end
+		end
+		term:
+		begin
+			CS = start;
 		end
 	endcase
 end 
 
 always @ (*)
 begin
-	ledout[10] <= ram1WE;
-	ledout[11] <= ram1OE;
-	ledout[12] <= ram1EN;
-	ledout[13] <= we;
-	ledout[14] <= data_address[16];
-	ledout[15] <= done;
-end
-
-always @ (*)
-begin
 	case(CS)
-		start: ledout[9:0] <= data_address[9:0] ;
-		load_data1: ledout[9:0] <= data_in[9:0] ;
-		// incre1,write_data1: 
-		// begin
-			// ledout[9:5] <= data_address[4:0] ;
-			// ledout[4:0] <= data_out[4:0] ;
-		// end
-		// incre2:
-		// begin
-			// ledout[9:5] <= data_address[4:0] ;
-			// ledout[4:0] <= data_out[4:0] ;
-		// end
-		// incre3:
-		// begin
-			// ledout[9:5] <= data_address[4:0] ;
-			// ledout[4:0] <= data_in[4:0] ;
-		// end
-		// incre4:
-		// begin
-			// ledout[9:5] <= data_address[4:0] ;
-			// ledout[4:0] <= data_out[4:0] ;
-		// end
-		default:// ledout[9:0] <= 10'b0000000000 ;
+		start: ledout[15:0] <= data_address[15:0] ;
+		load_data1: ledout[15:0] <= data_in[15:0] ;
+		default:
 			begin
-				ledout[9:5] <= data_address[4:0] ;
-				ledout[4:0] <= data_out[4:0] ;			
+				ledout[15:8] <= data_address[7:0] ;
+				ledout[7:0] <= data_out[7:0] ;			
 			end
 	endcase
 end
@@ -254,15 +232,15 @@ ram_full ram_full(
 	.addr(data_address),
 	.done(done),
 	.data_out(data_out),
-	.ram1EN(ram2EN),
-	.ram2EN(ram1EN),
-	.ram1OE(ram2OE),
-	.ram2OE(ram1OE),
-	.ram1WE(ram2WE),
-	.ram2WE(ram1WE),
-	.ram_addr1(ram_addr2),
-	.ram_data1(ram_data2),
-	.ram_addr2(ram_addr1),
-	.ram_data2(ram_data1)
+	.ram1EN(ram1EN),
+	.ram2EN(ram2EN),
+	.ram1OE(ram1OE),
+	.ram2OE(ram2OE),
+	.ram1WE(ram1WE),
+	.ram2WE(ram2WE),
+	.ram_addr1(ram_addr1),
+	.ram_data1(ram_data1),
+	.ram_addr2(ram_addr2),
+	.ram_data2(ram_data2)
 ) ; // need to confirm the ram_controller module
 endmodule

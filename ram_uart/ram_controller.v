@@ -59,22 +59,18 @@ begin
 				data_out=data_in;
 				ram_oe=1;
 				flag=1;
-				#write_establish ram_we=0;
-				// #write_time ram_we=1;
-				#write_hold done=1;
-				// #done_hold done=0;
+				ram_we=0;
+				done=1;
 			end
 		else if(re==1)
 			begin
-				// data_temp=16'bz;
 				ram_oe=0;
-				// ram_oe=1;
 				done=1;
 				flag=0;
-				// #done_hold done=0;
 			end
-		else if(flag==1)
+		else if(flag==1)//write finish
 			begin
+				data_out=data_in;
 				ram_we=1;
 				done = 0;
 			end
