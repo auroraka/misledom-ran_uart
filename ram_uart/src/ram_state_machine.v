@@ -61,8 +61,8 @@ incre3 = 9,
 read_out2 = 10,
 incre4 = 11 ;
 
-assign rdn=0;
-assign wrn=0;
+assign rdn=1;
+assign wrn=1;
 
 always @ (posedge clk or negedge rst)
 begin
