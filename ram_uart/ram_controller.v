@@ -32,8 +32,6 @@ parameter write_establish=300, write_hold=300, write_time=300;
 parameter read_reference=300;
 parameter done_hold=500_000_000_000;
 
-reg [15:0] data_temp;
-
 initial
 begin
 	ram_en=0;
@@ -48,17 +46,19 @@ begin
 	ram_en=en;
 end
 
-assign data=data_temp;
+reg flag;
+
+assign data = (flag==0)?16'bz:data_in;
 
 always @(re, we)
 begin
-	if(en==0)data_out=16'b0;
+	if(en==1)data_out=16'b0;
 	else
 		if(we==1)//write
 			begin
-				data_temp=data_in;
-				data_out=data_temp;
+				data_out=data_in;
 				ram_oe=1;
+				flag=1;
 				#write_establish ram_we=0;
 				// #write_time ram_we=1;
 				#write_hold done=1;
@@ -66,17 +66,21 @@ begin
 			end
 		else if(re==1)
 			begin
-				data_temp=16'bz;
+				// data_temp=16'bz;
 				ram_oe=0;
-				#read_reference data_out=data;
 				// ram_oe=1;
 				done=1;
+				flag=0;
 				// #done_hold done=0;
 			end
-		else
+		else if(flag==1)
 			begin
-				// data_out=data;
 				ram_we=1;
+				done = 0;
+			end
+		else if(flag==0)
+			begin
+				data_out=data;
 				done = 0;
 			end
 end

@@ -43,14 +43,14 @@ always @(*)
 begin
 	if(addr[16]==0)//ram1
 		begin
-		en1 = en;
+		en1 = 0;
 		en2 = 0;
 		done = done1;
 		data_out = data_out1;
 		end
 	else//ram2
 		begin
-		en2 = en;
+		en2 = 0;
 		en1 = 0;
 		done = done2;
 		data_out = data_out2;
