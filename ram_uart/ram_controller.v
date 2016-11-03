@@ -30,7 +30,7 @@ module ram_controller(
 	
 parameter write_establish=300, write_hold=300, write_time=300;
 parameter read_reference=300;
-parameter done_hold=500000;
+parameter done_hold=500_000_000_000;
 
 initial
 begin
@@ -47,6 +47,7 @@ begin
 end
 
 assign data=we?data_in:16'bz;
+
 always @(re, we)
 begin
 	if(en==0)data_out=16'b0;
@@ -55,18 +56,28 @@ begin
 			begin
 				data_out=data_in;
 				#write_establish ram_we=0;
-				#write_time ram_we=1;
+				// #write_time ram_we=1;
 				#write_hold done=1;
-				#done_hold done=0;
+				// #done_hold done=0;
 			end
 		else if(re==1)
 			begin
 				ram_oe=0;
 				#read_reference data_out=data;
-				ram_oe=1;
+				// ram_oe=1;
 				done=1;
-				#done_hold done=0;
-			end			
+				// #done_hold done=0;
+			end
+		else if(we==0)
+			begin
+				ram_we=1;
+				done = 0;
+			end
+		else if(re==0)
+			begin
+				ram_oe=1;
+				done = 0;
+			end
 end
 
 endmodule

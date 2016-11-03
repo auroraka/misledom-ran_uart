@@ -137,8 +137,8 @@ begin
 		decr:
 		begin
 			re = 0 ;
-			data_in = data_out - 1; 
-			data_address[16] = data_address[16] & 1 ;
+			data_in = ram_data1 - 1; 
+			data_address[16] = data_address[16] | 1 ;
 			CS = write_data2 ;
 		end
 		write_data2:
@@ -159,9 +159,9 @@ begin
 			else
 			begin
 				data_address = data_address - 9 ;
-				data_address[16] = data_address[16] & 1 ;
-				CS = read_out2 ;
+				data_address[16] = data_address[16] | 1 ;
 				count = 0;
+				CS = read_out2 ;
 			end
 		end
 		read_out2:
@@ -176,7 +176,6 @@ begin
 			if(count <= 9)
 			begin
 				data_address = data_address + 1 ;
-				data_address[16] = data_address[16] | 1 ;
 				CS = read_out2 ;
 			end
 			else
@@ -189,36 +188,40 @@ end
 
 always @ (*)
 begin
+	ledout[10] <= ram1WE;
+	ledout[11] <= ram1OE;
+	ledout[12] <= ram1EN;
+	ledout[13] <= we;
 	ledout[14] <= data_address[16];
 	ledout[15] <= done;
 end
 
-always @ (CS)
+always @ (*)
 begin
 	case(CS)
-		start: ledout[13:0] <= data_address[13:0] ;
-		load_data1: ledout[13:0] <= data_in[13:0] ;
-		write_data1: 
+		start: ledout[9:0] <= data_address[9:0] ;
+		load_data1: ledout[9:0] <= data_in[9:0] ;
+		incre1: 
 		begin
-			ledout[13:8] <= data_address[5:0] ;
-			ledout[7:0] <= data_in[7:0] ;
+			ledout[9:5] <= data_address[4:0] ;
+			ledout[4:0] <= data_out[4:0] ;
 		end
-		read_out1:
+		incre2:
 		begin
-			ledout[13:8] <= data_address[5:0] ;
-			ledout[7:0] <= data_out[7:0] ;
+			ledout[9:5] <= data_address[4:0] ;
+			ledout[4:0] <= data_out[4:0] ;
 		end
-		write_data2:
+		incre3:
 		begin
-			ledout[13:8] <= data_address[5:0] ;
-			ledout[7:0] <= data_in[7:0] ;
+			ledout[9:5] <= data_address[4:0] ;
+			ledout[4:0] <= data_in[4:0] ;
 		end
-		read_out2:
+		incre4:
 		begin
-			ledout[13:8] <= data_address[5:0] ;
-			ledout[7:0] <= data_out[7:0] ;
+			ledout[9:5] <= data_address[4:0] ;
+			ledout[4:0] <= data_out[4:0] ;
 		end
-		default: ledout[13:0] <= 14'b00000000000000 ;
+		default: ledout[9:0] <= 10'b0000000000 ;
 	endcase
 end
 
