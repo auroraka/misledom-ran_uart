@@ -73,26 +73,25 @@ begin
 		end
 	else
 	case(CS)
-		start:
+		start: //0
 		begin
 		   re = 0 ;
 		   we = 0 ;
 		   data_address = {0, sw} ;
 		   CS = load_data1 ;
 		end
-		load_data1:
+		load_data1://1
 		begin
 		    count = 0 ;
 			data_in = sw ;
 			CS = write_data1 ; 
 		end
-		write_data1:
+		write_data1: //2
 		begin
 			we = 1 ;
-			//en_ram = 1 ;
 			CS = incre1 ;
 		end
-		incre1:
+		incre1: //3
 		begin
 			we = 0 ;
 			count = count + 1 ;
@@ -111,12 +110,12 @@ begin
 				count = 0;
 			end
 		end
-		read_out1:
+		read_out1: //4
 		begin
 			re = 1 ;
 			CS = incre2 ;
 		end
-		incre2:
+		incre2: //5
 		begin
 			re = 0 ;
 			count = count + 1 ;
@@ -134,24 +133,24 @@ begin
 				count=0;
 			end
 		end
-		read_before_write:
+		read_before_write: //6
 		begin
 			re = 1 ;
 			CS = decr ;
 		end
-		decr:
+		decr: //7
 		begin
 			re = 0 ;
 			data_in = ram_data1 - 1; 
 			data_address[16] = data_address[16] | 1 ;
 			CS = write_data2 ;
 		end
-		write_data2:
+		write_data2: //8
 		begin
 			we = 1 ;
 			CS = incre3 ;
 		end
-		incre3:
+		incre3: //9
 		begin
 			we = 0 ;
 			count = count + 1 ;
@@ -169,12 +168,12 @@ begin
 				CS = read_out2 ;
 			end
 		end
-		read_out2:
+		read_out2: //a
 		begin
 			re = 1 ;
 			CS = incre4 ;
 		end
-		incre4:
+		incre4: //b
 		begin
 			re = 0 ;
 			count = count + 1 ;
