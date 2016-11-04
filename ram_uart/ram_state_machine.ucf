@@ -111,7 +111,6 @@ NET "ram2WE" LOC = M9;
 NET "rdn" LOC = C14;
 NET "wrn" LOC = U5;
 
-# PlanAhead Generated physical constraints 
 
 NET "key[3]" LOC = V16;
 NET "key[2]" LOC = V14;
@@ -125,3 +124,9 @@ NET "led[11]" LOC = A13;
 NET "led[10]" LOC = F12;
 NET "led[9]" LOC = E12;
 NET "led[8]" LOC = A12;
+
+# PlanAhead Generated physical constraints 
+
+NET "data_ready" LOC = A16;
+NET "tbre" LOC = D14;
+NET "tsre" LOC = N9;
