@@ -34,7 +34,7 @@ seg_displayer seg_displayer0(
 
 assign data=(readFlag==1)?{8{1'bz}}:data_write;
 
-always @ (state,mode) begin
+always @ (*) begin
 	if (readFlag) begin
 		data_read<=data;
 	end
@@ -93,6 +93,7 @@ always @ (posedge clk or negedge rst) begin
 							state<=1;
 						end
 						1:begin 
+							readFlag=0;
 							data_write<={8{1'bz}};
 							rdn<=1;
 							state<=2;
@@ -104,9 +105,9 @@ always @ (posedge clk or negedge rst) begin
 							end else if (data_ready== 0 )begin 
 								state<=1;
 							end
-							readFlag=1;
 						end
 						3:begin
+							readFlag=1;
 							data_out<=data_read;
 							state<=1;
 						end
@@ -127,6 +128,7 @@ always @ (posedge clk or negedge rst) begin
 						end
 						1:begin 
 							rdn<=1;
+							readFlag=0;
 							data_write<={8{1'bz}};
 							state<=2;
 						end
@@ -137,9 +139,9 @@ always @ (posedge clk or negedge rst) begin
 							end else begin 
 								state<=1;
 							end
-							readFlag=1;
 						end
 						3:begin 
+							readFlag=1;
 							data_out<=data_read;
 							tmp_data<=data_read;
 							rdn<=1;

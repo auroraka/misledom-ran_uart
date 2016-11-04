@@ -56,7 +56,12 @@ wire ram1_we_u;
 wire ram1_en_u;
 wire[6:0] seg_show_u;
 
-reg key3=0;
+reg key3=1;
+
+always @ (negedge key[3]) begin
+	key3=~key3;
+end
+
 
 assign en_r=key3==0?0:1;
 assign ram_addr1=key3==0?ram_addr1_r:0;
@@ -89,8 +94,8 @@ end
 assign dyp0=key3==0?dyp0_r:seg_show_u;
 assign dyp1=key3==0?dyp1_r:0;
 
-assign rdn=key3==0?rdn_r:rdn_u;
-assign wrn=key3==0?wrn_r:wrn_u;
+assign rdn=rdn_u;
+assign wrn=wrn_u;
 
 
 ram_state_machine ram_state_machine0(
@@ -118,21 +123,9 @@ ram_state_machine ram_state_machine0(
 assign mode_u=sw[1:0];
 assign data_in_u=sw[15:8];
 
-// always @ (*) begin
-// 	if (key3==0) begin
-// 		ram_data1_r<=ram_data1;
-// 		ram_data2_r<=ram_data2;
-// 		data_u<=0;
-// 	end else begin
-// 		ram_data1_r<=0;
-// 		ram_data2_r<=0;
-// 		data_u<=ram_data1[7:0];
-// 	end
-// end
-
  uart_controller uart_controller0(
 	.clk(clk_11),
-	.rst(rst),
+	.rst(rst), 
 	.data_ready(data_ready),
 	.tbre(tbre),
 	.tsre(tsre),
