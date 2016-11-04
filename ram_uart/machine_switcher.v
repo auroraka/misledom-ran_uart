@@ -26,9 +26,9 @@ module machine_switcher(
 //r
 wire en_r;
 wire [17:0] ram_addr1_r;
-reg [15:0] ram_data1_r;
+wire [15:0] ram_data1_r;
 wire [17:0] ram_addr2_r;
-reg [15:0] ram_data2_r;
+wire [15:0] ram_data2_r;
 wire ram1OE_r;
 wire ram2OE_r;
 wire ram1WE_r;
@@ -42,7 +42,6 @@ wire rdn_r;
 wire wrn_r;
 
 //u
-
 wire data_ready_u;
 wire tbre_u;
 wire tsre_u;
@@ -60,16 +59,20 @@ wire[6:0] seg_show_u;
 
 
 assign en_r=key[3]==0?0:1;
-assign ram_addr1_r=key[3]==0?ram_addr1:0;
-//assign ram_data1_r=key[3]==0?ram_data1:0;
-assign ram_addr2_r=key[3]==0?ram_addr2:0;
-//assign ram_data2_r=key[3]==0?ram_data2:0;
-assign ram1OE_r=key[3]==0?ram1OE:0;
-assign ram2OE_r=key[3]==0?ram2OE:0;
-assign ram1WE_r=key[3]==0?ram1WE:0;
-assign ram2WE_r=key[3]==0?ram2WE:0;
-assign ram1EN_r=key[3]==0?ram1EN:0;
-assign ram2EN_r=key[3]==0?ram2EN:0;
+assign ram_addr1=key[3]==0?ram_addr1_r:0;
+assign ram_addr2=key[3]==0?ram_addr2:0;
+assign ram_data1[15:8]=key[3]==0?ram_data1_r[15:8]:0;
+assign ram_data1[7:0]=key[3]==0?ram_data1_r[7:0]:0;
+//assign data_u=key[3]==1?ram_data1[7:0]:0;
+assign ram_data2=key[3]==0?ram_data2_r:0;
+
+assign ram1OE=key[3]==0?ram1OE_r:ram1_oe_u;
+assign ram1WE=key[3]==0?ram1WE_r:ram1_we_u;
+assign ram1EN=key[3]==0?ram1EN_r:ram1_en_u;
+
+assign ram2OE=key[3]==0?ram2OE_r:1;
+assign ram2WE=key[3]==0?ram2WE_r:1;
+assign ram2EN=key[3]==0?ram2EN_r:1;
 
 always @(*)
 begin
@@ -97,9 +100,9 @@ ram_state_machine ram_state_machine0(
    .en(en_r),
    .sw(sw),
 	.ram_addr1(ram_addr1_r),
-	.ram_data1(ram_data1),
+	.ram_data1(ram_data1_r),
 	.ram_addr2(ram_addr2_r),
-	.ram_data2(ram_data2),
+	.ram_data2(ram_data2_r),
 	.ram1OE(ram1OE_r),
 	.ram2OE(ram2OE_r),
 	.ram1WE(ram1WE_r),
@@ -113,16 +116,8 @@ ram_state_machine ram_state_machine0(
    .wrn(wrn_r)
  );
 
-assign data_ready_u=key[3]==1?data_ready:0;
-assign tbre_u=key[3]==1?tbre:0;
-assign tsre_u=key[3]==1?tsre:0;
-//assign data_u=key[3]==1?ram_data1[7:0]:0;
 assign mode_u=sw[1:0];
 assign data_in_u=sw[15:8];
-
-assign ram1_oe_u=key[3]==1?ram1OE:0;
-assign ram1_we_u=key[3]==1?ram1WE:0;
-assign ram1_en_u=key[3]==1?ram1EN:0;
 
 // always @ (*) begin
 // 	if (key[3]==0) begin
@@ -139,9 +134,9 @@ assign ram1_en_u=key[3]==1?ram1EN:0;
  uart_controller uart_controller0(
 	.clk(clk_11),
 	.rst(rst),
-	.data_ready(data_ready_u),
-	.tbre(tbre_u),
-	.tsre(tsre_u),
+	.data_ready(data_ready),
+	.tbre(tbre),
+	.tsre(tsre),
 	//.data(data_u),
 	.mode(mode_u),
 	.data_in(data_in_u),
