@@ -47,7 +47,6 @@ reg [16:0] data_address ;
 reg [3:0] CS, count ;
 wire done ;
 wire [15:0] data_out ;
-reg en_temp=0;
 
 parameter [3:0] start = 4'd0,
 load_data1 = 1,
@@ -225,7 +224,7 @@ seg_displayer seg_displayer1(
 ) ;
 
 ram_full ram_full(
-	.en(en_temp),
+	.en(en),
 	.re(re),
 	.we(we),
 	.data_in(data_in),

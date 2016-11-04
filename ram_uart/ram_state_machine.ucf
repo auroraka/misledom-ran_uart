@@ -124,6 +124,7 @@ NET "ram2EN" LOC = N10;
 NET "ram2OE" LOC = R9;
 NET "ram2WE" LOC = M9;
 NET "en" LOC = U11;
+NET "en" CLOCK_DEDICATED_ROUTE = FALSE;
 
 # PlanAhead Generated physical constraints 
 

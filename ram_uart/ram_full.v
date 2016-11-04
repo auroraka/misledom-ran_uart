@@ -41,7 +41,12 @@ assign addr_17[17] = 0;
 	
 always @(*)
 begin
-	if(addr[16]==0)//ram1
+	if (en==1)
+		begin
+			en1=1;
+			en2=1;
+		end
+	else if(addr[16]==0)//ram1
 		begin
 		en1 = 0;
 		en2 = 0;
