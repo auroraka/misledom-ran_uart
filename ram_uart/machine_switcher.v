@@ -45,7 +45,7 @@ wire wrn_r;
 wire data_ready_u;
 wire tbre_u;
 wire tsre_u;
-reg[7:0] data_u;
+wire[7:0] data_u;
 wire[1:0] mode_u;
 wire[7:0] data_in_u;
 wire wrn_u;
@@ -56,27 +56,26 @@ wire ram1_we_u;
 wire ram1_en_u;
 wire[6:0] seg_show_u;
 
+reg key3=0;
 
+assign en_r=key3==0?0:1;
+assign ram_addr1=key3==0?ram_addr1_r:0;
+assign ram_addr2=key3==0?ram_addr2_r:0;
+assign ram_data1[15:8]=key3==0?ram_data1_r[15:8]:0;
+assign ram_data1[7:0]=key3==0?ram_data1_r[7:0]:data_u;
+assign ram_data2=key3==0?ram_data2_r:0;
 
-assign en_r=key[3]==0?0:1;
-assign ram_addr1=key[3]==0?ram_addr1_r:0;
-assign ram_addr2=key[3]==0?ram_addr2:0;
-assign ram_data1[15:8]=key[3]==0?ram_data1_r[15:8]:0;
-assign ram_data1[7:0]=key[3]==0?ram_data1_r[7:0]:0;
-//assign data_u=key[3]==1?ram_data1[7:0]:0;
-assign ram_data2=key[3]==0?ram_data2_r:0;
+assign ram1OE=key3==0?ram1OE_r:ram1_oe_u;
+assign ram1WE=key3==0?ram1WE_r:ram1_we_u;
+assign ram1EN=key3==0?ram1EN_r:ram1_en_u;
 
-assign ram1OE=key[3]==0?ram1OE_r:ram1_oe_u;
-assign ram1WE=key[3]==0?ram1WE_r:ram1_we_u;
-assign ram1EN=key[3]==0?ram1EN_r:ram1_en_u;
-
-assign ram2OE=key[3]==0?ram2OE_r:1;
-assign ram2WE=key[3]==0?ram2WE_r:1;
-assign ram2EN=key[3]==0?ram2EN_r:1;
+assign ram2OE=key3==0?ram2OE_r:1;
+assign ram2WE=key3==0?ram2WE_r:1;
+assign ram2EN=key3==0?ram2EN_r:1;
 
 always @(*)
 begin
-	if(key[3]==0)
+	if(key3==0)
 		begin
 			led=ledout_r;
 		end
@@ -87,11 +86,11 @@ begin
 		end
 end
 
-assign dyp0=key[3]==0?dyp0_r:seg_show_u;
-assign dyp1=key[3]==0?dyp1_r:0;
+assign dyp0=key3==0?dyp0_r:seg_show_u;
+assign dyp1=key3==0?dyp1_r:0;
 
-assign rdn=key[3]==0?rdn_r:rdn_u;
-assign wrn=key[3]==0?wrn_r:wrn_u;
+assign rdn=key3==0?rdn_r:rdn_u;
+assign wrn=key3==0?wrn_r:wrn_u;
 
 
 ram_state_machine ram_state_machine0(
@@ -120,7 +119,7 @@ assign mode_u=sw[1:0];
 assign data_in_u=sw[15:8];
 
 // always @ (*) begin
-// 	if (key[3]==0) begin
+// 	if (key3==0) begin
 // 		ram_data1_r<=ram_data1;
 // 		ram_data2_r<=ram_data2;
 // 		data_u<=0;
@@ -137,7 +136,7 @@ assign data_in_u=sw[15:8];
 	.data_ready(data_ready),
 	.tbre(tbre),
 	.tsre(tsre),
-	//.data(data_u),
+	.data(data_u),
 	.mode(mode_u),
 	.data_in(data_in_u),
 	.wrn(wrn_u),
