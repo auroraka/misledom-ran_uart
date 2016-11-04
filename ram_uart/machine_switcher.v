@@ -1,6 +1,7 @@
 module machine_switcher(
    input wire rst,
    input wire clk,
+   input wire clk_11,
    input wire [15:0] sw,
 	output wire [17:0] ram_addr1,
 	inout [15:0] ram_data1,
@@ -22,11 +23,8 @@ module machine_switcher(
 	input wire tsre,
 	input wire[3:0] key
 );
-
-wire rst_r;
-wire clk_r;
+//r
 wire en_r;
-wire [15:0] sw_r;
 wire [17:0] ram_addr1_r;
 reg [15:0] ram_data1_r;
 wire [17:0] ram_addr2_r;
@@ -43,10 +41,25 @@ wire [6:0] dyp1_r;
 wire rdn_r;
 wire wrn_r;
 
-assign rst_r=key[3]==0?rst:0;
-assign clk_r=key[3]==0?clk:0;
+//u
+
+wire data_ready_u;
+wire tbre_u;
+wire tsre_u;
+reg[7:0] data_u;
+wire[1:0] mode_u;
+wire[7:0] data_in_u;
+wire wrn_u;
+wire rdn_u;
+wire[7:0] data_out_u;
+wire ram1_oe_u;
+wire ram1_we_u;
+wire ram1_en_u;
+wire[6:0] seg_show_u;
+
+
+
 assign en_r=key[3]==0?0:1;
-assign sw_r=key[3]==0?sw:0;
 assign ram_addr1_r=key[3]==0?ram_addr1:0;
 //assign ram_data1_r=key[3]==0?ram_data1:0;
 assign ram_addr2_r=key[3]==0?ram_addr2:0;
@@ -57,18 +70,32 @@ assign ram1WE_r=key[3]==0?ram1WE:0;
 assign ram2WE_r=key[3]==0?ram2WE:0;
 assign ram1EN_r=key[3]==0?ram1EN:0;
 assign ram2EN_r=key[3]==0?ram2EN:0;
-assign ledout_r=key[3]==0?led:0;
-assign dyp0_r=key[3]==0?dyp0:0;
-assign dyp1_r=key[3]==0?dyp1:0;
-assign rdn_r=key[3]==0?rdn:0;
-assign wrn_r=key[3]==0?wrn:0;
+
+always @(*)
+begin
+	if(key[3]==0)
+		begin
+			led=ledout_r;
+		end
+	else
+		begin
+			led[15:8]=8'b0;
+			led[7:0]=data_out_u;
+		end
+end
+
+assign dyp0=key[3]==0?dyp0_r:seg_show_u;
+assign dyp1=key[3]==0?dyp1_r:0;
+
+assign rdn=key[3]==0?rdn_r:rdn_u;
+assign wrn=key[3]==0?wrn_r:wrn_u;
 
 
 ram_state_machine ram_state_machine0(
-	.rst(rst_r),
-   .clk(clk_r),
+	.rst(rst),
+   .clk(clk),
    .en(en_r),
-   .sw(sw_r),
+   .sw(sw),
 	.ram_addr1(ram_addr1_r),
 	.ram_data1(ram_data1),
 	.ram_addr2(ram_addr2_r),
@@ -86,37 +113,16 @@ ram_state_machine ram_state_machine0(
    .wrn(wrn_r)
  );
 
-wire clk_u;
-wire rst_u;
-wire data_ready_u;
-wire tbre_u;
-wire tsre_u;
-reg[7:0] data_u;
-wire[1:0] mode_u;
-wire[7:0] data_in_u;
-wire wrn_u;
-wire rdn_u;
-wire[7:0] data_out_u;
-wire ram1_oe_u;
-wire ram1_we_u;
-wire ram1_en_u;
-wire[6:0] seg_show_u;
-
-assign clk_u=key[3]==1?clk:0;
-assign rst_u=key[3]==1?rst:0;
 assign data_ready_u=key[3]==1?data_ready:0;
 assign tbre_u=key[3]==1?tbre:0;
 assign tsre_u=key[3]==1?tsre:0;
 //assign data_u=key[3]==1?ram_data1[7:0]:0;
-assign mode_u=key[3]==1?sw[1:0]:0;
-assign data_in_u=key[3]==1?sw[15:8]:0;
-assign wrn_u=key[3]==1?wrn:0;
-assign rdn_u=key[3]==1?rdn:0;
-assign data_out_u=key[3]==1?led[7:0]:0;
+assign mode_u=sw[1:0];
+assign data_in_u=sw[15:8];
+
 assign ram1_oe_u=key[3]==1?ram1OE:0;
 assign ram1_we_u=key[3]==1?ram1WE:0;
 assign ram1_en_u=key[3]==1?ram1EN:0;
-assign seg_show_u=key[3]==1?dyp0:0;
 
 // always @ (*) begin
 // 	if (key[3]==0) begin
@@ -131,8 +137,8 @@ assign seg_show_u=key[3]==1?dyp0:0;
 // end
 
  uart_controller uart_controller0(
-	.clk(clk_u),
-	.rst(rst_u),
+	.clk(clk_11),
+	.rst(rst),
 	.data_ready(data_ready_u),
 	.tbre(tbre_u),
 	.tsre(tsre_u),

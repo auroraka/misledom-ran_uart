@@ -99,6 +99,7 @@ NET "sw[2]" LOC = U8;
 NET "sw[1]" LOC = R7;
 NET "sw[0]" LOC = T7;
 NET "clk" LOC = U9;
+NET "clk_11" LOC = B8;
 NET "rst" LOC = U10;
 NET "ram1EN" LOC = M15;
 NET "ram1OE" LOC = M16;
