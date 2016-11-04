@@ -130,3 +130,5 @@ NET "led[8]" LOC = A12;
 NET "data_ready" LOC = A16;
 NET "tbre" LOC = D14;
 NET "tsre" LOC = N9;
+
+NET "key<3>" CLOCK_DEDICATED_ROUTE = FALSE;

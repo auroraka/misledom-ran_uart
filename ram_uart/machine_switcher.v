@@ -25,7 +25,7 @@ module machine_switcher(
 
 wire rst_r=key[3]==0?rst:0;
 wire clk_r=key[3]==0?clk:0;
-wire en_r=key[3]==0?1:0;
+wire en_r=key[3]==0?0:1;
 wire [15:0] sw_r=key[3]==0?sw:0;
 wire [17:0] ram_addr1_r=key[3]==0?ram_addr1:0;
 reg [15:0] ram_data1_r;//=key[3]==0?ram_data1:0;
@@ -66,23 +66,23 @@ ram_state_machine ram_state_machine0(
    	.wrn(wrn_r)
  );
 
-wire clk_u=key[3]==1?clk:0;
-wire rst_u=key[3]==1?rst:0;
-wire data_ready_u=key[3]==1?data_ready:0;
-wire tbre_u=key[3]==1?tbre:0;
-wire tsre_u=key[3]==1?tsre:0;
-reg[7:0] data_u;
-//=key[3]==1?ram_data1[7:0]:0;
-wire[1:0] mode_u=key[3]==1?sw[1:0]:0;
-wire[7:0] data_in_u=key[3]==1?sw[15:8]:0;
+// wire clk_u=key[3]==1?clk:0;
+// wire rst_u=key[3]==1?rst:0;
+// wire data_ready_u=key[3]==1?data_ready:0;
+// wire tbre_u=key[3]==1?tbre:0;
+// wire tsre_u=key[3]==1?tsre:0;
+// reg[7:0] data_u;
+// //=key[3]==1?ram_data1[7:0]:0;
+// wire[1:0] mode_u=key[3]==1?sw[1:0]:0;
+// wire[7:0] data_in_u=key[3]==1?sw[15:8]:0;
 
-wire wrn_u=key[3]==1?wrn:0;
-wire rdn_u=key[3]==1?rdn:0;
-wire[7:0] data_out_u=key[3]==1?led[7:0]:0;
-wire ram1_oe_u=key[3]==1?ram1OE:0;
-wire ram1_we_u=key[3]==1?ram1WE:0;
-wire ram1_en_u=key[3]==1?ram1EN:0;
-wire[6:0] seg_show_u=key[3]==1?dyp0:0;
+// wire wrn_u=key[3]==1?wrn:0;
+// wire rdn_u=key[3]==1?rdn:0;
+// wire[7:0] data_out_u=key[3]==1?led[7:0]:0;
+// wire ram1_oe_u=key[3]==1?ram1OE:0;
+// wire ram1_we_u=key[3]==1?ram1WE:0;
+// wire ram1_en_u=key[3]==1?ram1EN:0;
+// wire[6:0] seg_show_u=key[3]==1?dyp0:0;
 
 // always @ (*) begin
 // 	if (key[3]==0) begin
@@ -174,23 +174,23 @@ wire[6:0] seg_show_u=key[3]==1?dyp0:0;
 // 	end
 // end
 
- uart_controller uart_controller0(
-	.clk(clk_u),
-	.rst(rst_u),
-	.data_ready(data_ready_u),
-	.tbre(tbre_u),
-	.tsre(tsre_u),
-	//.data(data_u),
-	.mode(mode_u),
-	.data_in(data_in_u),
+//  uart_controller uart_controller0(
+// 	.clk(clk_u),
+// 	.rst(rst_u),
+// 	.data_ready(data_ready_u),
+// 	.tbre(tbre_u),
+// 	.tsre(tsre_u),
+// 	//.data(data_u),
+// 	.mode(mode_u),
+// 	.data_in(data_in_u),
 
-	.wrn(wrn_u),
-	.rdn(rdn_u),
-	.data_out(data_out_u),
-	.ram1_oe(ram1_oe_u),
-	.ram1_we(ram1_we_u),
-	.ram1_en(ram1_en_u),
-	.seg_show(seg_show_u)
-);
+// 	.wrn(wrn_u),
+// 	.rdn(rdn_u),
+// 	.data_out(data_out_u),
+// 	.ram1_oe(ram1_oe_u),
+// 	.ram1_we(ram1_we_u),
+// 	.ram1_en(ram1_en_u),
+// 	.seg_show(seg_show_u)
+// );
 
 endmodule
