@@ -56,14 +56,20 @@ wire[6:0] seg_show_u;
 reg key3=1;
 
 // integer cnt=0;
-// always @ (negedge key[3],) begin
-// 	if (cnt>3) begin
-// 		key3=~key3;
-// 		cnt=0;
+// always @ (posedge clk_11 or negedge rst) begin
+// 	if (rst ==0) begin
 // 	end else begin
-// 		cnt=cnt+1;
+// 		if (cnt == 1023 ) begin
+// 			key3<=key[3];
+// 			cnt=0;	
+// 		end else begin
+// 			if (cnt<1023) begin
+// 				cnt=cnt+1;
+// 			end
+// 		end
 // 	end
-// end
+// end 
+
 
 
 assign en_r=key3==0?0:1;
@@ -81,9 +87,8 @@ assign ram2OE=key3==0?ram2OE_r:1;
 assign ram2WE=key3==0?ram2WE_r:1;
 assign ram2EN=key3==0?ram2EN_r:1;
 
-always @(*)
-begin
-	if(key3==0)
+always @(*) begin
+	if (key3==0)
 		begin
 			led=ledout_r;
 		end
@@ -162,7 +167,6 @@ assign data_in_u=sw[15:8];
 // 	.ram1e(ram1_en_u),
 // 	.ram1w(ram1_we_u)
 // );
-
 
 
 endmodule
