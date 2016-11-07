@@ -42,9 +42,6 @@ wire rdn_r;
 wire wrn_r;
 
 //u
-wire data_ready_u;
-wire tbre_u;
-wire tsre_u;
 wire[7:0] data_u;
 wire[1:0] mode_u;
 wire[7:0] data_in_u;
@@ -58,9 +55,15 @@ wire[6:0] seg_show_u;
 
 reg key3=1;
 
-always @ (negedge key[3]) begin
-	key3=~key3;
-end
+// integer cnt=0;
+// always @ (negedge key[3],) begin
+// 	if (cnt>3) begin
+// 		key3=~key3;
+// 		cnt=0;
+// 	end else begin
+// 		cnt=cnt+1;
+// 	end
+// end
 
 
 assign en_r=key3==0?0:1;
@@ -140,5 +143,26 @@ assign data_in_u=sw[15:8];
 	.ram1_en(ram1_en_u),
 	.seg_show(seg_show_u)
 );
+
+
+
+// chuan chuan0(
+// 	.clk(clk_11),
+// 	.rst(rst),
+// 	.ready(data_ready),
+// 	.data(data_u),
+// 	.mode(mode_u),
+// 	.data_in(data_in_u),
+// 	.data_out(data_out_u),
+// 	.tbre(tbre),
+// 	.tsre(tsre),
+// 	.wrn(wrn_u),
+// 	.rdn(rdn_u),
+// 	.ram1o(ram1_oe_u),
+// 	.ram1e(ram1_en_u),
+// 	.ram1w(ram1_we_u)
+// );
+
+
 
 endmodule
