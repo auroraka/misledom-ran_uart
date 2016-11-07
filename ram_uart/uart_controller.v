@@ -1,4 +1,5 @@
 module uart_controller(
+	input wire en,
 	input wire clk,
 	input wire rst,
 	input wire data_ready,
@@ -48,6 +49,8 @@ always @ (posedge clk or negedge rst) begin
 		ram1_en<=1;
 		ram1_we<=1;
 		ram1_oe<=1;
+		rdn<=0;
+		readFlag=0;
 		cnt=0;
 	end else begin
 		if (cnt == 1023) begin 
@@ -109,7 +112,7 @@ always @ (posedge clk or negedge rst) begin
 						3:begin
 							readFlag=1;
 							data_out<=data_read;
-							state<=1;
+							state<=0;
 						end
 
 						default : begin

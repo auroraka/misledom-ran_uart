@@ -42,6 +42,7 @@ wire rdn_r;
 wire wrn_r;
 
 //u
+wire en_u;
 wire[7:0] data_u;
 wire[1:0] mode_u;
 wire[7:0] data_in_u;
@@ -56,11 +57,18 @@ wire[6:0] seg_show_u;
 reg key3=1;
 
 // integer cnt=0;
+// reg[3:0] ddd=4'b0;
 // always @ (posedge clk_11 or negedge rst) begin
 // 	if (rst ==0) begin
 // 	end else begin
 // 		if (cnt == 1023 ) begin
-// 			key3<=key[3];
+// 			ddd[3]<=ddd[2];
+// 			ddd[2]<=ddd[1];
+// 			ddd[1]<=ddd[0];
+// 			ddd[0]<=key[3];
+// 			if (ddd== 4'b0) begin
+// 				key3=~key3;
+// 			end
 // 			cnt=0;	
 // 		end else begin
 // 			if (cnt<1023) begin
@@ -71,8 +79,8 @@ reg key3=1;
 // end 
 
 
-
 assign en_r=key3==0?0:1;
+assign en_u=key3==0?0:1;
 assign ram_addr1=key3==0?ram_addr1_r:0;
 assign ram_addr2=key3==0?ram_addr2_r:0;
 assign ram_data1[15:8]=key3==0?ram_data1_r[15:8]:0;
@@ -132,8 +140,8 @@ assign mode_u=sw[1:0];
 assign data_in_u=sw[15:8];
 
  uart_controller uart_controller0(
-	.clk(clk_11),
-	.rst(rst), 
+ 	.clk(clk_11),
+	.rst(rst&en_u), 
 	.data_ready(data_ready),
 	.tbre(tbre),
 	.tsre(tsre),

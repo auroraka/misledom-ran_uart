@@ -52,8 +52,10 @@ assign data = (flag==0)?16'bz:data_in;
 
 always @(re, we)
 begin
-	if(en==1)data_out=16'b0;
-	else
+	if(en==1) begin 
+		data_out=16'b0;
+		flag=0;
+	end else 
 		if(we==1)//write
 			begin
 				data_out=data_in;
